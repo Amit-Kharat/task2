@@ -10,12 +10,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createUserHandler = void 0;
+const mailer_1 = require("../services/mailer");
 const user_service_1 = require("../services/user.service");
 function createUserHandler(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const user = yield (0, user_service_1.createUser)(req.body);
-            return res.send("User Created!");
+            const user = yield (0, user_service_1.createUser)(req.body).then(result => {
+                (0, mailer_1.sendMail)(result.email, "Welcome mail for " + result.name).then(preview => {
+                    console.log("Prev Link : " + preview);
+                    return res.send("User Created and Welcome mail has been sent to " + result.email + "<br> Preview The Email at " + preview);
+                });
+            });
         }
         catch (e) {
             return res.send(e.message);
